@@ -8,6 +8,8 @@ import OpenflowCore
 enum Snapshots {
     static func run(state: AppState, delegate: AppDelegate, dir: URL) {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        // Offscreen captures don't paint the window background; dark appearance keeps text readable.
+        NSApp.appearance = NSAppearance(named: .darkAqua)
         var steps: [(String, () -> Void)] = []
         let model = state.overlay.model
         // Warm-up: the first render of a never-shown panel can be empty.

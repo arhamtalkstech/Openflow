@@ -57,7 +57,7 @@ You bring your own SpaceXAI API key, and everything runs from your Mac directly 
 - **Writes like you typed it.** Filler words disappear, your corrections are applied ("Monday, no wait, Tuesday" → "Tuesday"), and lists, numbers, emails, and money are formatted. The style matches the destination: emails read like emails, chat messages like chat.
 - **Edit by voice.** Select text and say "make this shorter" or "turn this into bullets", and the selection is rewritten in place. Say "by the way…" and your words are added after it.
 - **Any language.** Auto-detect handles mid-sentence switches and never translates unless you ask.
-- **Hold to talk, or hands-free.** Hold the shortcut and release to paste, or tap it and every pause pastes.
+- **Hold to talk.** Hold the shortcut while you speak and let go to paste. Prefer hands-free? Switch it on under **Shortcut**: tap once and every pause pastes.
 - **Live feedback.** The bubble shows a waveform and the last few words heard, plus "No audio detected" if your mic is silent.
 - **Nothing lost.** If the connection drops, Openflow keeps recording and recovers the audio, or offers **Retry**. If a paste doesn't land, it offers **Paste**.
 - **Personal.** Add an About-you profile, custom instructions, and a dictionary for names and jargon.
@@ -140,7 +140,7 @@ Run it again any time from the menu bar → **Setup assistant…**.
 | Do this | What happens |
 |---|---|
 | Hold the shortcut, talk, release | Your words are pasted at the cursor |
-| Tap the shortcut | Hands-free: every pause pastes; tap again or click ✕ to stop |
+| Tap the shortcut (if hands-free is on under **Shortcut**) | Every pause pastes; tap again or click ✕ to stop |
 | Select text, then dictate | Instructions rewrite the selection; anything else is added after it |
 | Esc | Discards what hasn't been pasted yet |
 | Menu bar → Microphone | Pick the input device |

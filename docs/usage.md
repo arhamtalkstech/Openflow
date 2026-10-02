@@ -2,7 +2,7 @@
 
 ## Everyday dictation
 - **Quick message**: hold the shortcut, talk, and release. The text is pasted where your cursor is.
-- **Long-form or walking around**: tap the shortcut once for hands-free mode. Every pause pastes; keep talking and it keeps appending. Tap again, click ✕ on the bubble, or stay silent for the idle timeout (default 2 min) to stop.
+- **Long-form or walking around**: under **Shortcut**, choose a hands-free option, then tap the shortcut once. Every pause pastes; keep talking and it keeps appending. Tap again, click ✕ on the bubble, or stay silent for the idle timeout (default 2 min) to stop.
 - **Changed your mind**: just say it ("at three, no wait, four", "scratch that"). Only the final version is pasted.
 - **Lists**: "Three things: first…, second…, third…" gives a numbered list. Saying items one at a time with a short pause between them ("Help me buy… eggs… bananas… milk") gives "- " bullets, as does asking for a list. Items mentioned in passing in one sentence stay inline, and single-line boxes (search, subject) always stay on one line. "New line" and "new paragraph" work too.
 - **Mistake before it pastes**: Esc discards whatever hasn't been pasted yet.
@@ -37,7 +37,7 @@ Corrections always resolve to the last thing you said ("the 15th, no, actually t
 | Setting | Where | Default |
 |---|---|---|
 | Shortcut (record any combo, chord, or single modifier) | Shortcut | ⌃ Control |
-| Activation style | Shortcut | Hold to talk, tap for hands-free |
+| Activation style | Shortcut | Hold to talk only (hold while speaking, release to paste) |
 | Pause before paste | Dictation | 1.0 s |
 | Cleanup with Grok (off = raw transcript) | Dictation / menu bar | On |
 | Reasoning effort | Dictation | None (fastest) |

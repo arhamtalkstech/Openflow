@@ -432,7 +432,9 @@ struct OnboardingView: View {
                 Label("It works: pasted \(r.words) words \(r.latencyMs) ms after you stopped talking.", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green).font(.headline)
             } else {
-                Text("Tip: tap the shortcut instead of holding it for hands-free mode. It pastes every time you pause.")
+                Text(state.settings.activation == .holdOnly
+                     ? "Tip: prefer hands-free (tap once, every pause pastes)? Pick it under Shortcut in the Openflow window."
+                     : "Tip: tap the shortcut instead of holding it for hands-free mode. It pastes every time you pause.")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
@@ -458,7 +460,9 @@ struct OnboardingView: View {
     private var done: some View {
         VStack(alignment: .leading, spacing: 14) {
             Bullet(icon: "keyboard", text: "**Hold \(state.settings.hotkey.display)** to talk, let go to paste.")
-            Bullet(icon: "hand.tap", text: "**Tap** it for hands-free. Tap again or click ✕ on the bubble to stop.")
+            if state.settings.activation != .holdOnly {
+                Bullet(icon: "hand.tap", text: "**Tap** it for hands-free. Tap again or click ✕ on the bubble to stop.")
+            }
             Bullet(icon: "escape", text: "**Esc** throws away what hasn't been pasted yet.")
             Bullet(icon: "text.cursor", text: "**Select text** first to edit it by voice.")
             Bullet(icon: "menubar.arrow.up.rectangle", text: "Openflow lives in the menu bar (the waveform icon).")

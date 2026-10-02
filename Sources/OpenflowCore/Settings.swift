@@ -128,7 +128,8 @@ public struct Hotkey: Codable, Equatable, Sendable {
 /// All user-tunable settings. Persisted as JSON in UserDefaults. The API key lives in the Keychain.
 public struct OpenflowSettings: Codable, Equatable, Sendable {
     public var hotkey: Hotkey = .eitherControl
-    public var activation: ActivationStyle = .holdOrTap
+    /// Default: hold the shortcut while speaking; release to paste.
+    public var activation: ActivationStyle = .holdOnly
     /// Silence (seconds) that counts as "I stopped speaking" in hands-free mode.
     public var pauseSeconds: Double = 1.0
     /// Hands-free mode closes the mic after this much continuous silence (seconds).

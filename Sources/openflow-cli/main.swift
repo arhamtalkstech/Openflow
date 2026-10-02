@@ -792,6 +792,15 @@ func spacingSelfTest() -> Bool {
     expect("join: terminal command untouched", j("Git status", "ls -la", false), "Git status")
     expect("join: after a full stop nothing changes", j("Actually, yes.", "…3 PM.", true), "Actually, yes.")
     expect("join: model already joined", j(". Also bring the deck.", "See you at 3", true), ". Also bring the deck.")
+    // Defaults a brand-new install gets (empty settings store) and older saved settings without the keys.
+    let suite = "openflow-defaults-selftest-\(UUID().uuidString)"
+    let fresh = OpenflowSettings.load(from: UserDefaults(suiteName: suite)!)
+    UserDefaults().removePersistentDomain(forName: suite)
+    expect("default activation: hold to talk only", fresh.activation.rawValue, "holdOnly")
+    expect("default: Grok cleanup on", "\(fresh.cleanupEnabled)", "true")
+    expect("default cleanup model", fresh.formatterModel, "grok-4.3")
+    let legacy = (try? JSONDecoder().decode(OpenflowSettings.self, from: Data(#"{"pauseSeconds": 1.4}"#.utf8)))
+    expect("saved settings without the keys get the defaults", "\(legacy?.activation.rawValue ?? "nil") \(legacy?.cleanupEnabled ?? false)", "holdOnly true")
     print(ok ? "all spacing cases pass" : "spacing cases FAILED")
     return ok
 }

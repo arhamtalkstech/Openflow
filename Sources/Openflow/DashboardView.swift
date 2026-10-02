@@ -148,7 +148,9 @@ struct HomeSection: View {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Speak anywhere. Openflow types it.").font(.title2.weight(.semibold))
-                    Text("Put your cursor in any text field and hold \(state.settings.hotkey.display) to talk, or tap it for hands-free.")
+                    Text(state.settings.activation == .holdOnly
+                         ? "Put your cursor in any text field, hold \(state.settings.hotkey.display) while you talk, and let go to paste."
+                         : "Put your cursor in any text field and hold \(state.settings.hotkey.display) to talk, or tap it for hands-free.")
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
