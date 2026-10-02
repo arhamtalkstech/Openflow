@@ -1,6 +1,38 @@
-# Openflow
+<p align="center">
+  <img src="docs/assets/hero.jpg" width="100%" alt="The Openflow bubble: a small dark pill with a live waveform, floating above a text cursor">
+</p>
 
-**Speak anywhere on your Mac. Openflow types it, cleanly.**
+<p align="center">
+  <img src="docs/assets/icon.png" width="112" alt="Openflow app icon">
+</p>
+
+<h1 align="center">Openflow</h1>
+
+<p align="center">
+  <b>Speak anywhere on your Mac. Openflow types it, cleanly.</b><br>
+  Native macOS dictation powered by SpaceXAI Grok models.
+</p>
+
+<p align="center">
+  <img alt="macOS 14+" src="https://img.shields.io/badge/macOS-14%2B-000000?logo=apple&logoColor=white">
+  <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white">
+  <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-universal-4B5563">
+  <img alt="Powered by SpaceXAI Grok" src="https://img.shields.io/badge/powered%20by-SpaceXAI%20Grok-111111">
+  <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-2EA44F">
+  <img alt="Signed updates" src="https://img.shields.io/badge/updates-signed%20(Sparkle)-2563EB">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-35%20real--audio%20scenarios-7C3AED">
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><b>Download for Mac</b></a> ·
+  <a href="#getting-a-spacexai-api-key">Get an API key</a> ·
+  <a href="docs/usage.md">How to use it</a> ·
+  <a href="docs/architecture.md">How it works</a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/demo.gif" width="760" alt="Holding ⌃⌥ in a Mail compose window: a small bubble above the cursor shows a live waveform and the last few words heard, turns into a spinner on release, then the formatted email is pasted.">
+</p>
 
 Openflow is a native macOS menu bar app for voice dictation. Put your cursor in any text field in any app, hold a shortcut, and talk. A small bubble appears above your text cursor while you speak. When you stop, polished text is pasted where you were typing: punctuated, formatted, and written for that app.
 

@@ -21,13 +21,15 @@ final class BubbleModel: ObservableObject {
     @Published var liveText = ""
     @Published var showLiveText = true
     @Published var handsFree = false
+    /// Fixed animation time for deterministic frames (README demo rendering); nil = live.
+    @Published var fixedTime: Double?
 
     /// Width of the pill for a look (also used for the clickable area).
     func pillWidth(hovering: Bool) -> CGFloat {
         switch look {
         case .hidden: return pillHeight
         case .connecting: return 52 + (hovering ? 22 : 0)
-        case .listening: return 66 + (hovering ? 22 : 0)
+        case .listening: return 80 + (hovering ? 22 : 0)
         case .thinking, .pasted: return pillHeight
         case .error: return 230
         case .noAudio: return 168 + (hovering ? 22 : 0)
@@ -104,15 +106,15 @@ struct BubbleView: View {
                     if model.showsLiveWords {
                         // Proof that words are being heard: the last 2–3, tiny, newest always visible.
                         Text(model.liveTail)
-                            .font(.system(size: 8.5, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.85))
+                            .font(.system(size: 8.5, weight: .regular).italic())
+                            .foregroundStyle(.white.opacity(0.58))  // quieter than the waveform
                             .lineLimit(1)
                             .truncationMode(.head)
-                            .frame(maxWidth: 50)
+                            .frame(maxWidth: 64)
                             .transition(.opacity)
                             .animation(.easeOut(duration: 0.12), value: model.liveTail)
                     }
-                    Waveform(level: model.level)
+                    Waveform(level: model.level, fixedTime: model.fixedTime)
                         .scaleEffect(model.showsLiveWords ? 0.8 : 1)
                 }
                 if showClose { closeButton.transition(.scale.combined(with: .opacity)) }
@@ -130,7 +132,7 @@ struct BubbleView: View {
                 if showClose { closeButton }
             }
         case .thinking:
-            Spinner().transition(.scale.combined(with: .opacity))
+            Spinner(fixedTime: model.fixedTime).transition(.scale.combined(with: .opacity))
         case .pasted:
             Image(systemName: "checkmark")
                 .font(.system(size: 11, weight: .heavy))
@@ -184,41 +186,56 @@ struct BubbleView: View {
 /// Nine rounded bars that dance with the voice level.
 struct Waveform: View {
     var level: Float
+    /// Fixed animation time for deterministic frames (README demo rendering); nil = live.
+    var fixedTime: Double? = nil
     private let envelope: [CGFloat] = [0.38, 0.6, 0.8, 0.95, 1, 0.95, 0.8, 0.6, 0.38]
 
     var body: some View {
-        TimelineView(.animation) { ctx in
-            let t = ctx.date.timeIntervalSinceReferenceDate
-            HStack(spacing: 2.2) {
-                ForEach(0..<envelope.count, id: \.self) { i in
-                    let wobble = 0.55 + 0.45 * sin(t * 10.5 + Double(i) * 0.9) * cos(t * 3.1 + Double(i) * 1.7)
-                    let idle = 0.5 + 0.5 * sin(t * 2.6 + Double(i) * 0.7)  // gentle breathing when quiet
-                    let lv = CGFloat(min(1, max(0, level)) * 1.25)
-                    let h = 3 + envelope[i] * (lv * 15 * CGFloat(wobble) + 1.6 * CGFloat(idle))
-                    Capsule()
-                        .fill(LinearGradient(colors: [.white, Color(red: 0.72, green: 0.86, blue: 1)],
-                                             startPoint: .top, endPoint: .bottom))
-                        .frame(width: 2.6, height: min(18, h))
-                }
+        Group {
+            if let fixedTime {
+                bars(fixedTime)
+            } else {
+                TimelineView(.animation) { ctx in bars(ctx.date.timeIntervalSinceReferenceDate) }
             }
-            .animation(.easeOut(duration: 0.08), value: level)
         }
         .frame(height: 18)
+    }
+
+    private func bars(_ t: Double) -> some View {
+        HStack(spacing: 2.2) {
+            ForEach(0..<envelope.count, id: \.self) { i in
+                let wobble = 0.55 + 0.45 * sin(t * 10.5 + Double(i) * 0.9) * cos(t * 3.1 + Double(i) * 1.7)
+                let idle = 0.5 + 0.5 * sin(t * 2.6 + Double(i) * 0.7)  // gentle breathing when quiet
+                let lv = CGFloat(min(1, max(0, level)) * 1.25)
+                let h = 3 + envelope[i] * (lv * 15 * CGFloat(wobble) + 1.6 * CGFloat(idle))
+                Capsule()
+                    .fill(LinearGradient(colors: [.white, Color(red: 0.72, green: 0.86, blue: 1)],
+                                         startPoint: .top, endPoint: .bottom))
+                    .frame(width: 2.6, height: min(18, h))
+            }
+        }
+        .animation(fixedTime == nil ? .easeOut(duration: 0.08) : nil, value: level)
     }
 }
 
 /// Rotating arc loader inside the circle.
 struct Spinner: View {
+    var fixedTime: Double? = nil
     var body: some View {
-        TimelineView(.animation) { ctx in
-            let angle = ctx.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 0.9) / 0.9 * 360
-            Circle()
-                .trim(from: 0.08, to: 0.72)
-                .stroke(AngularGradient(colors: [.white.opacity(0.1), .white], center: .center),
-                        style: StrokeStyle(lineWidth: 2, lineCap: .round))
-                .frame(width: 14, height: 14)
-                .rotationEffect(.degrees(angle))
+        if let fixedTime {
+            arc(fixedTime)
+        } else {
+            TimelineView(.animation) { ctx in arc(ctx.date.timeIntervalSinceReferenceDate) }
         }
+    }
+
+    private func arc(_ t: Double) -> some View {
+        Circle()
+            .trim(from: 0.08, to: 0.72)
+            .stroke(AngularGradient(colors: [.white.opacity(0.1), .white], center: .center),
+                    style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            .frame(width: 14, height: 14)
+            .rotationEffect(.degrees(t.truncatingRemainder(dividingBy: 0.9) / 0.9 * 360))
     }
 }
 

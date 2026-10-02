@@ -42,6 +42,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         }
         #endif
         #if DEBUG
+        if let i = args.firstIndex(of: "--render-demo"), i + 1 < args.count {
+            DemoRender.run(dir: URL(fileURLWithPath: args[i + 1]))
+            return
+        }
         if args.contains("--mic-test") {
             // Lists inputs, then records 1.5 s from each through AudioCapture and prints the peak level only.
             let devices = AudioDevices.inputs()
