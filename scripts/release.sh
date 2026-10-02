@@ -68,6 +68,8 @@ else
   rm -f "$ZIP"
   ditto -c -k --sequesterRsrc --keepParent .build/app/Openflow.app "$ZIP"
 fi
+# Checksum for install.sh (it refuses a download that doesn't match).
+(cd "$(dirname "$ZIP")" && shasum -a 256 "$(basename "$ZIP")" > "$(basename "$ZIP").sha256")
 SIG_ATTRS=$("$SIGN_UPDATE" "$ZIP")   # sparkle:edSignature="…" length="…"
 echo "Signed: $SIG_ATTRS"
 
@@ -111,7 +113,7 @@ EOF
 
 if [[ -n "$LOCAL_DIR" ]]; then
   mkdir -p "$LOCAL_DIR"
-  mv "$ZIP" "$LOCAL_DIR/"
+  mv "$ZIP" "$ZIP.sha256" "$LOCAL_DIR/"
   rm -f "$DMG"   # local test builds point at a test feed: keep them out of dist/
   EXISTING=""; [[ -f "$LOCAL_DIR/appcast.xml" ]] && EXISTING="$LOCAL_DIR/appcast.xml"
   ZIP="$LOCAL_DIR/Openflow-$VERSION.zip"
@@ -131,7 +133,7 @@ NOTES_FILE=$(mktemp); trap 'rm -f "$NOTES_FILE"' EXIT
 if [[ $FEED_ONLY == 1 ]]; then
   gh release view "v$VERSION" --repo "$RELEASES_REPO" >/dev/null || { echo "Release v$VERSION not found" >&2; exit 1; }
 else
-  gh release create "v$VERSION" "$ZIP" "$DMG" --repo "$RELEASES_REPO" --title "Openflow $VERSION" --notes-file "$NOTES_FILE"
+  gh release create "v$VERSION" "$ZIP" "$ZIP.sha256" "$DMG" --repo "$RELEASES_REPO" --title "Openflow $VERSION" --notes-file "$NOTES_FILE"
 fi
 
 # Then publish the feed entry (GitHub contents API; no local clone, no token on disk).

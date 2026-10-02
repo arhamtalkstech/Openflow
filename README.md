@@ -13,6 +13,14 @@
   Native macOS dictation powered by SpaceXAI Grok models.
 </p>
 
+**Install in one line** (macOS 14+). Paste this into Terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/arhamtalkstech/Openflow/main/install.sh | bash
+```
+
+It downloads the latest release, checks its checksum and code signature, installs Openflow in Applications, and opens the setup assistant, with no security prompts. Run it again any time to update.
+
 <p align="center">
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-16A34A">
   <img alt="macOS 14+" src="https://img.shields.io/badge/macOS-14%2B-000000?logo=apple&logoColor=white">
@@ -89,9 +97,18 @@ The dashboard shows your exact spend.
 
 ## Install
 
-**From a release:** download the latest `Openflow-x.y.z.dmg` from this project's Releases page, open it, and drag **Openflow** to **Applications**.
+**One line (recommended):**
 
-Release builds are not notarized by Apple yet. The first time you open Openflow:
+```bash
+curl -fsSL https://raw.githubusercontent.com/arhamtalkstech/Openflow/main/install.sh | bash
+```
+
+[`install.sh`](install.sh) reads the latest version from the update feed and downloads it from this project's GitHub Releases. Before installing, it verifies the SHA-256 checksum published with the release and the app's code signature. It then installs to `/Applications` (or `~/Applications` if your account can't write there), quits a running copy, and launches Openflow.
+- **No security prompt:** files downloaded with `curl` aren't flagged as browser downloads, so macOS opens the app without the "unidentified developer" warning.
+- **Pick a version:** `curl -fsSL …/install.sh | OPENFLOW_VERSION=1.1.2 bash`.
+- **Read it first:** the script is short. Open [install.sh](install.sh) to see exactly what runs.
+
+**From a DMG:** download the latest `Openflow-x.y.z.dmg` from this project's Releases page, open it, and drag **Openflow** to **Applications**. Release builds aren't notarized by Apple yet, so the first time you open Openflow:
 1. macOS says it can't verify the developer. Click **Done**.
 2. Go to **System Settings → Privacy & Security** and click **Open Anyway**.
 
