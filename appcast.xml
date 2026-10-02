@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Openflow</title>
+    <item>
+      <title>Openflow 1.1.1</title>
+      <pubDate>Fri, 02 Oct 2026 22:05:17 GMT</pubDate>
+      <sparkle:version>4</sparkle:version>
+      <sparkle:shortVersionString>1.1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<ul><li>First public release of Openflow: native macOS dictation powered by SpaceXAI Grok models.</li><li>Hold or tap a shortcut in any app, speak, and get polished text at your cursor.</li><li>A small bubble above your text cursor shows a live waveform and the words being heard.</li><li>Corrections (&quot;Monday, no wait, Tuesday&quot;), lists, numbers, and app-aware style for email, chat, documents, and AI prompts.</li><li>Select text and dictate to edit it by voice.</li><li>Keeps recording when offline and offers Retry; checks that every paste lands; warns when no audio is detected.</li><li>Microphone picker, usage dashboard, and a setup assistant that tests each step.</li><li>Signed over-the-air updates from now on.</li><li>Not notarized yet: on first launch, approve it in System Settings → Privacy &amp; Security → Open Anyway.</li></ul>]]></description>
+      <enclosure url="https://github.com/arhamtalkstech/Openflow/releases/download/v1.1.1/Openflow-1.1.1.zip" sparkle:edSignature="N7DJc1yLUNc8miUHAAN07TzsAQbhE5f+BCAKzuRdAo1FN4G0j5+4To2WlxzUMRRihpndGxLfrs4JkfCnTSUbAg==" length="3405516" type="application/octet-stream"/>
+    </item>
+  </channel>
+</rss>
