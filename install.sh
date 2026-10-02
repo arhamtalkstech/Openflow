@@ -8,7 +8,7 @@
 #   OPENFLOW_DIR=~/Applications   install somewhere other than /Applications
 #
 # What it does:
-#   1. Reads the latest version from the update feed (or uses OPENFLOW_VERSION).
+#   1. Finds the latest version from GitHub Releases (or uses OPENFLOW_VERSION).
 #   2. Downloads Openflow-<version>.zip from this repository's GitHub Releases over HTTPS.
 #   3. Verifies the zip's SHA-256 checksum (published with the release) and the app's code signature.
 #   4. Quits a running Openflow, installs the app, and launches it.
@@ -35,10 +35,17 @@ main() {
 
   local version="${OPENFLOW_VERSION:-}"
   if [[ -z "$version" ]]; then
-    local feed
-    feed=$(curl -fsSL "$FEED") || fail "Couldn't read the latest version from $FEED"
-    version=$(grep -m1 -oE '<sparkle:shortVersionString>[0-9]+\.[0-9]+\.[0-9]+' <<<"$feed" | sed 's/.*>//' || true)
-    [[ -n "$version" ]] || fail "Couldn't find a version in the update feed."
+    # GitHub's /releases/latest redirects to the newest tag immediately (the raw feed can be cached
+    # for a few minutes after a release); the update feed is the fallback.
+    local latest
+    latest=$(curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest" 2>/dev/null || true)
+    version=$(sed -nE 's#.*/releases/tag/v([0-9]+\.[0-9]+\.[0-9]+)$#\1#p' <<<"$latest")
+    if [[ -z "$version" ]]; then
+      local feed
+      feed=$(curl -fsSL "$FEED") || fail "Couldn't find the latest version."
+      version=$(grep -m1 -oE '<sparkle:shortVersionString>[0-9]+\.[0-9]+\.[0-9]+' <<<"$feed" | sed 's/.*>//' || true)
+    fi
+    [[ -n "$version" ]] || fail "Couldn't find the latest version."
   fi
   [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "Invalid version: $version"
   say "Installing Openflow $version"

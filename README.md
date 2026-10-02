@@ -103,7 +103,7 @@ The dashboard shows your exact spend.
 curl -fsSL https://raw.githubusercontent.com/arhamtalkstech/Openflow/main/install.sh | bash
 ```
 
-[`install.sh`](install.sh) reads the latest version from the update feed and downloads it from this project's GitHub Releases. Before installing, it verifies the SHA-256 checksum published with the release and the app's code signature. It then installs to `/Applications` (or `~/Applications` if your account can't write there), quits a running copy, and launches Openflow.
+[`install.sh`](install.sh) finds the latest version on this project's GitHub Releases and downloads it from there. Before installing, it verifies the SHA-256 checksum published with the release and the app's code signature. It then installs to `/Applications` (or `~/Applications` if your account can't write there), quits a running copy, and launches Openflow.
 - **No security prompt:** files downloaded with `curl` aren't flagged as browser downloads, so macOS opens the app without the "unidentified developer" warning.
 - **Pick a version:** `curl -fsSL …/install.sh | OPENFLOW_VERSION=1.1.2 bash`.
 - **Read it first:** the script is short. Open [install.sh](install.sh) to see exactly what runs.
