@@ -14,6 +14,7 @@
 </p>
 
 <p align="center">
+  <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-16A34A">
   <img alt="macOS 14+" src="https://img.shields.io/badge/macOS-14%2B-000000?logo=apple&logoColor=white">
   <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white">
   <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-universal-4B5563">
@@ -205,4 +206,6 @@ Release settings go in `scripts/release.local.conf` (gitignored): the GitHub rep
 
 ## License
 
-Third-party components and their licenses are listed in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Openflow bundles Sparkle (MIT) for updates.
+Openflow is open source under the [MIT License](LICENSE): use it, change it, and share it freely.
+
+It bundles Sparkle (MIT) for updates. Third-party licenses are listed in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
