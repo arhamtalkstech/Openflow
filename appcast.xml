@@ -3,6 +3,15 @@
   <channel>
     <title>Openflow</title>
     <item>
+      <title>Openflow 1.1.2</title>
+      <pubDate>Fri, 02 Oct 2026 22:18:10 GMT</pubDate>
+      <sparkle:version>5</sparkle:version>
+      <sparkle:shortVersionString>1.1.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<ul><li>New Updates page in the Openflow window: check for updates right on the page, see the result, and update with one click.</li><li>Pasting into Openflow&#x27;s own fields works again (About you, the API key field, and the setup assistant&#x27;s practice box); ⌘C, ⌘A, and ⌘Z work there too.</li><li>The bubble is a little wider, and the live words are lighter and quieter so the waveform stands out.</li></ul>]]></description>
+      <enclosure url="https://github.com/arhamtalkstech/Openflow/releases/download/v1.1.2/Openflow-1.1.2.zip" sparkle:edSignature="eKUXqy47atgzQYRSJEJ703Y0BZQ1I8kS07o/kGWaFGEZYKX9jgkzGPGgevYXDGApFB3PNdkwFh3fiK2j/aZfCQ==" length="3447094" type="application/octet-stream"/>
+    </item>
+    <item>
       <title>Openflow 1.1.1</title>
       <pubDate>Fri, 02 Oct 2026 22:05:17 GMT</pubDate>
       <sparkle:version>4</sparkle:version>
