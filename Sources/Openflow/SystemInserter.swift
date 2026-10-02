@@ -118,7 +118,7 @@ final class SystemInserter: TextInserting {
                             return
                         }
                         Self.whenModifiersReleased {
-                            Self.postKey(9, flags: .maskCommand)
+                            Self.sendPaste()
                             self.verify(before: before, body: body, attempt: 2, restore: restore, completion: completion)
                         }
                     }
@@ -183,7 +183,7 @@ final class SystemInserter: TextInserting {
         pb.writeObjects([item])
         let ourChange = pb.changeCount
 
-        Self.postKey(9, flags: .maskCommand)  // ⌘V
+        Self.sendPaste()
 
         var done = false
         let restore: (Bool) -> Void = { putBack in
@@ -204,6 +204,16 @@ final class SystemInserter: TextInserting {
             }
         }
         then(restore)
+    }
+
+    /// ⌘V into the frontmost app. Openflow's own windows (About you, practice box, API key) get the paste
+    /// action directly: no synthetic key event, no dependence on keyboard routing.
+    static func sendPaste() {
+        if NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier,
+           NSApp.sendAction(#selector(NSText.paste(_:)), to: nil, from: nil) {
+            return
+        }
+        postKey(9, flags: .maskCommand)
     }
 
     static func postKey(_ code: CGKeyCode, flags: CGEventFlags = []) {

@@ -64,10 +64,12 @@ fi
 # Version override for release builds (scripts/release.sh) without editing Resources/Info.plist.
 [[ -n "${OPENFLOW_VERSION:-}" ]] && /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $OPENFLOW_VERSION" "$APP/Contents/Info.plist"
 [[ -n "${OPENFLOW_BUILD:-}" ]] && /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $OPENFLOW_BUILD" "$APP/Contents/Info.plist"
-# Local end-to-end update test only: check at launch, install without a click.
+# Local end-to-end update tests only: check at launch, install without a click
+# (OPENFLOW_UPDATE_PROBE_TEST=1: only the Updates page's in-page check, never installs).
 if [[ "${OPENFLOW_UPDATE_TEST:-0}" == "1" ]]; then
   /usr/libexec/PlistBuddy -c "Add :OpenflowUpdateTest bool true" -c "Set :SUAllowsAutomaticUpdates true" \
     -c "Add :SUAutomaticallyUpdate bool true" "$APP/Contents/Info.plist"
+  [[ "${OPENFLOW_UPDATE_PROBE_TEST:-0}" == "1" ]] && /usr/libexec/PlistBuddy -c "Add :OpenflowUpdateProbeTest bool true" "$APP/Contents/Info.plist"
 fi
 
 # Icon: render once, cache in .build.

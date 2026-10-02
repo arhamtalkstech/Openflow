@@ -51,6 +51,21 @@ enum Snapshots {
                 capture(delegate.onboardingContentView, to: dir.appendingPathComponent(String(format: "onboarding-%d-%@.png", step.rawValue, "\(step)")), scale: 1)
             }))
         }
+        // Updates page in each state (no feed contacted).
+        let u = state.updates
+        let previews: [(String, UpdateController.Status, Bool, Date?)] = [
+            ("updates-1-unknown", .unknown, false, nil),
+            ("updates-2-checking", .unknown, true, nil),
+            ("updates-3-uptodate", .upToDate, false, Date().addingTimeInterval(-180)),
+            ("updates-4-available", .available("1.1.2"), false, Date().addingTimeInterval(-60)),
+            ("updates-5-failed", .failed("An error occurred in retrieving update information."), false, Date()),
+        ]
+        for (name, st, checking, last) in previews {
+            steps.append(("set \(name)", { u.preview(enabled: true, status: st, checking: checking, lastCheck: last); delegate.openDashboardWindow(.updates) }))
+            steps.append((name, {
+                if let v = delegate.dashboardWindow?.contentView { capture(v, to: dir.appendingPathComponent("\(name).png"), scale: 1) }
+            }))
+        }
         // `--only home,account`: render just those dashboard sections (keeps the window on screen briefly).
         let args = ProcessInfo.processInfo.arguments
         if let j = args.firstIndex(of: "--only"), j + 1 < args.count {

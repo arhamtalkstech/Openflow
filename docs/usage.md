@@ -50,6 +50,19 @@ Corrections always resolve to the last thing you said ("the 15th, no, actually t
 
 If you use **fn** as the shortcut, set System Settings → Keyboard → "Press 🌐 key to" → Do Nothing.
 
+## Updates
+Open Openflow → **Updates**:
+- **Check for Updates** checks right on the page and shows the result: "You're up to date", "Openflow x.y.z is available", or why the check failed, with **Try Again**.
+- **Update to x.y.z…** shows the release notes and **Install & Relaunch**.
+- The page also has the daily automatic check toggle, the last check time, and a link to the release notes.
+
+When an update is waiting:
+- the sidebar shows a badge;
+- Home shows a banner;
+- the menu bar shows **Update to Openflow x.y.z…**.
+
+**Check for Updates…** is also always in the menu bar.
+
 ## Choosing a microphone
 Menu bar icon → **Microphone** lists every connected input (AirPods, USB webcams, the built-in mic) plus **System default**; the checked one is used from the next dictation. The same picker is under **Dictation → Microphone** and on the setup assistant's microphone step. If the chosen mic is unplugged, Openflow uses the system default until it's back. A MacBook's built-in mic is marked "(lid closed)" when the lid is shut, because macOS switches it off then.
 

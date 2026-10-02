@@ -4,7 +4,7 @@ import OpenflowCore
 import SwiftUI
 
 enum DashboardSection: String, CaseIterable, Identifiable {
-    case home, personalize, shortcut, dictation, account, setup
+    case home, personalize, shortcut, dictation, account, updates, setup
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -13,6 +13,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
         case .shortcut: return "Shortcut"
         case .dictation: return "Dictation"
         case .account: return "API key & spend"
+        case .updates: return "Updates"
         case .setup: return "Setup"
         }
     }
@@ -23,6 +24,7 @@ enum DashboardSection: String, CaseIterable, Identifiable {
         case .shortcut: return "keyboard"
         case .dictation: return "waveform"
         case .account: return "key"
+        case .updates: return "arrow.down.circle"
         case .setup: return "checkmark.shield"
         }
     }
@@ -37,7 +39,8 @@ struct DashboardView: View {
         NavigationSplitView {
             List(DashboardSection.allCases, selection: Binding(get: { section }, set: { if let s = $0 { section = s } })) { s in
                 Label(s.title, systemImage: s.icon)
-                    .badge(s == .setup && setupIssues > 0 ? Text("\(setupIssues)") : nil)
+                    .badge(s == .setup && setupIssues > 0 ? Text("\(setupIssues)")
+                           : s == .updates && state.updates.availableVersion != nil ? Text("1") : nil)
                     .tag(s)
             }
             .navigationSplitViewColumnWidth(min: 190, ideal: 200, max: 240)
@@ -58,6 +61,7 @@ struct DashboardView: View {
                     case .shortcut: ShortcutSection(state: state)
                     case .dictation: DictationSection(state: state)
                     case .account: AccountSection(state: state, usage: usage)
+                    case .updates: UpdatesSection(updates: state.updates)
                     case .setup: SetupSection(state: state)
                     }
                 }
@@ -434,6 +438,90 @@ struct DictationSection: View {
                 Toggle("Show the words being heard above the bubble", isOn: $state.settings.liveTranscript)
                 Toggle("Play start and paste sounds", isOn: $state.settings.playSounds)
             }
+        }
+    }
+}
+
+// MARK: - Updates
+
+struct UpdatesSection: View {
+    @ObservedObject var updates: UpdateController
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Card(title: "Openflow \(updates.currentVersion)") {
+                if updates.isEnabled {
+                    HStack(alignment: .center, spacing: 12) {
+                        statusIcon.frame(width: 24)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(statusTitle).fontWeight(.medium)
+                            Text(statusDetail).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                        }
+                        Spacer()
+                        if case .available(let v) = updates.status {
+                            Button("Update to \(v)…") { updates.checkForUpdates() }
+                                .buttonStyle(.borderedProminent).controlSize(.large)
+                        } else {
+                            Button(updates.isChecking ? "Checking…" : (isFailed ? "Try Again" : "Check for Updates")) {
+                                updates.checkInPage()
+                            }
+                            .controlSize(.large)
+                            .disabled(updates.isChecking)
+                        }
+                    }
+                    Divider()
+                    Toggle("Check for updates automatically (once a day)",
+                           isOn: Binding(get: { updates.automaticallyChecks }, set: { updates.automaticallyChecks = $0 }))
+                    HStack(spacing: 14) {
+                        if let url = updates.releasesURL { Link("Release notes", destination: url) }
+                        Text("Build \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?")")
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(.callout)
+                } else {
+                    Text("Updates aren't set up in this build. Install Openflow from its Releases page to get updates.")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Card(title: "How updates work") {
+                Text("Openflow asks for your OK before installing anything. Updates keep your settings, API key, and permissions. Every update is signed: Openflow only installs versions signed by its developer and refuses anything that was altered.")
+                    .font(.callout).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var isFailed: Bool { if case .failed = updates.status { return true } else { return false } }
+
+    @ViewBuilder private var statusIcon: some View {
+        if updates.isChecking {
+            ProgressView().controlSize(.small)
+        } else {
+            switch updates.status {
+            case .upToDate: Image(systemName: "checkmark.circle.fill").font(.title2).foregroundStyle(.green)
+            case .available: Image(systemName: "arrow.down.circle.fill").font(.title2).foregroundStyle(Color.accentColor)
+            case .failed: Image(systemName: "exclamationmark.triangle.fill").font(.title2).foregroundStyle(.orange)
+            case .unknown: Image(systemName: "arrow.triangle.2.circlepath").font(.title2).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var statusTitle: String {
+        if updates.isChecking { return "Checking for updates…" }
+        switch updates.status {
+        case .upToDate: return "You're up to date"
+        case .available(let v): return "Openflow \(v) is available"
+        case .failed: return "Couldn't check for updates"
+        case .unknown: return "Check whether a newer version is out"
+        }
+    }
+
+    private var statusDetail: String {
+        switch updates.status {
+        case .failed(let msg): return msg + " Check your connection and try again in a minute."
+        case .available: return "Installs in a few seconds and relaunches Openflow."
+        default:
+            guard let d = updates.lastCheckDate else { return "Not checked yet." }
+            return "Last checked \(d.formatted(.relative(presentation: .named)))."
         }
     }
 }

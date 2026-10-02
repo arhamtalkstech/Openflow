@@ -14,6 +14,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     private var cancellables: Set<AnyCancellable> = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if DEBUG
+        let skipMenu = ProcessInfo.processInfo.environment["OPENFLOW_NO_MAIN_MENU"] == "1"  // paste self-test control run
+        #else
+        let skipMenu = false
+        #endif
+        if !skipMenu { MainMenu.install() }  // ⌘V/⌘C/⌘A/⌘Z in Openflow's own windows
         // `--caret-probe <seconds>`: headless diagnostic. Logs what Openflow reads for the caret in the
         // frontmost app to ~/Library/Logs/Openflow/caret.log once a second, then quits. No UI, no hotkey.
         let args = ProcessInfo.processInfo.arguments
@@ -44,6 +50,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         #if DEBUG
         if let i = args.firstIndex(of: "--render-demo"), i + 1 < args.count {
             DemoRender.run(dir: URL(fileURLWithPath: args[i + 1]))
+            return
+        }
+        if args.contains("--paste-selftest") {
+            // ⌘V into a real NSTextView, routed exactly as AppKit routes a key press (through the main menu).
+            // A non-activating panel can become key without activating the app (macOS 14+ blocks focus
+            // stealing from background-launched processes), so the menu path runs as for a focused window.
+            let w = NSPanel(contentRect: NSRect(x: 200, y: 200, width: 400, height: 200), styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
+            let tv = NSTextView(frame: NSRect(x: 0, y: 0, width: 400, height: 200))
+            w.contentView = tv
+            NSApp.setActivationPolicy(.regular)
+            NSApp.activate(ignoringOtherApps: true)
+            w.makeKeyAndOrderFront(nil)
+            w.makeFirstResponder(tv)
+            let pb = NSPasteboard.general
+            let saved = pb.string(forType: .string)
+            pb.clearContents(); pb.setString("Openflow paste check", forType: .string)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                MainActor.assumeIsolated {
+                    print("active: \(NSApp.isActive); key window is test window: \(NSApp.keyWindow === w); first responder is text view: \(w.firstResponder === tv)")
+                    let e = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: .command, timestamp: 0,
+                                             windowNumber: w.windowNumber, context: nil, characters: "v",
+                                             charactersIgnoringModifiers: "v", isARepeat: false, keyCode: 9)!
+                    let handled = NSApp.mainMenu?.performKeyEquivalent(with: e) ?? false
+                    print("main menu present: \(NSApp.mainMenu != nil); ⌘V handled by menu: \(handled); text view now: \(String(reflecting: tv.string))")
+                    pb.clearContents(); if let saved { pb.setString(saved, forType: .string) }
+                    NSApp.terminate(nil)
+                }
+            }
             return
         }
         if args.contains("--mic-test") {

@@ -12,7 +12,19 @@ final class UpdateController: NSObject, ObservableObject, SPUUpdaterDelegate, SP
     /// Version string of an update that is ready to install, if any.
     @Published private(set) var availableVersion: String?
     @Published private(set) var isEnabled = false
+    /// An in-page check (Updates section) is running.
+    @Published private(set) var isChecking = false
+    /// Outcome of the last check, for the Updates section.
+    @Published private(set) var status: Status = .unknown
+    @Published private(set) var lastCheckDate: Date?
     private var controller: SPUStandardUpdaterController?
+
+    enum Status: Equatable {
+        case unknown
+        case upToDate
+        case available(String)
+        case failed(String)
+    }
 
     /// Builds made with OPENFLOW_UPDATE_TEST=1 (local end-to-end test only) check right after launch and
     /// install as soon as an update is downloaded. Release builds never carry this key.
@@ -26,16 +38,48 @@ final class UpdateController: NSObject, ObservableObject, SPUUpdaterDelegate, SP
               Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil else { return }
         controller = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: self)
         isEnabled = true
+        lastCheckDate = controller?.updater.lastUpdateCheckDate
         if testMode {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-                self?.log("test mode: background check")
-                self?.controller?.updater.checkForUpdatesInBackground()
+                guard let self else { return }
+                if Bundle.main.object(forInfoDictionaryKey: "OpenflowUpdateProbeTest") as? Bool == true {
+                    self.log("test mode: in-page check")
+                    self.checkInPage()
+                } else {
+                    self.log("test mode: background check")
+                    self.controller?.updater.checkForUpdatesInBackground()
+                }
             }
         }
     }
 
     var currentVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+    }
+
+    /// Updates section: ask the feed without any window; the result appears in the page.
+    func checkInPage() {
+        guard let updater = controller?.updater, updater.canCheckForUpdates, !isChecking else { return }
+        isChecking = true
+        updater.checkForUpdateInformation()
+    }
+
+    /// Check automatically once a day (Sparkle's scheduled checks).
+    var automaticallyChecks: Bool {
+        get { controller?.updater.automaticallyChecksForUpdates ?? false }
+        set {
+            controller?.updater.automaticallyChecksForUpdates = newValue
+            objectWillChange.send()
+        }
+    }
+
+    /// The GitHub Releases page that hosts the feed (derived from the feed URL in Info.plist).
+    var releasesURL: URL? {
+        guard let feed = Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String,
+              let url = URL(string: feed), url.host == "raw.githubusercontent.com" else { return nil }
+        let parts = url.pathComponents.filter { $0 != "/" }
+        guard parts.count >= 2 else { return nil }
+        return URL(string: "https://github.com/\(parts[0])/\(parts[1])/releases")
     }
 
     /// Menu / banner action: Sparkle's update window (or "You're up to date").
@@ -50,6 +94,7 @@ final class UpdateController: NSObject, ObservableObject, SPUUpdaterDelegate, SP
         let v = item.displayVersionString
         Task { @MainActor in
             self.availableVersion = v
+            self.status = .available(v)
             self.log("update available: \(v)")
         }
     }
@@ -57,6 +102,7 @@ final class UpdateController: NSObject, ObservableObject, SPUUpdaterDelegate, SP
     nonisolated func updaterDidNotFindUpdate(_ updater: SPUUpdater) {
         Task { @MainActor in
             self.availableVersion = nil
+            self.status = .upToDate
             self.log("up to date (\(self.currentVersion))")
         }
     }
@@ -64,6 +110,21 @@ final class UpdateController: NSObject, ObservableObject, SPUUpdaterDelegate, SP
     nonisolated func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
         let msg = (error as NSError).localizedDescription
         Task { @MainActor in self.log("update check ended: \(msg)") }
+    }
+
+    /// Every check ends here (in-page, scheduled, or from the window).
+    nonisolated func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: Error?) {
+        let ns = error as NSError?
+        // Sparkle reports "no update" as an error too (SUNoUpdateError, 1001); that's a success here.
+        let failure: String? = (ns == nil || ns?.code == 1001) ? nil : ns?.localizedDescription
+        Task { @MainActor in
+            self.isChecking = false
+            self.lastCheckDate = self.controller?.updater.lastUpdateCheckDate ?? Date()
+            if let failure {
+                self.status = .failed(failure)
+                self.log("check failed: \(failure)")
+            }
+        }
     }
 
     nonisolated func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
@@ -99,6 +160,14 @@ final class UpdateController: NSObject, ObservableObject, SPUUpdaterDelegate, SP
         let v = update.displayVersionString
         Task { @MainActor in self.availableVersion = v }
     }
+
+    #if DEBUG
+    /// Snapshot rendering only: show a state without contacting a feed.
+    func preview(enabled: Bool, status: Status, checking: Bool = false, lastCheck: Date? = nil) {
+        isEnabled = enabled; self.status = status; isChecking = checking; lastCheckDate = lastCheck
+        if case .available(let v) = status { availableVersion = v } else { availableVersion = nil }
+    }
+    #endif
 
     // MARK: Log (~/Library/Logs/Openflow/updates.log: versions and outcomes only)
 

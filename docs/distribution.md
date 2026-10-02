@@ -44,6 +44,8 @@ The script:
 3. Creates the GitHub release `v1.1.2` with the zip and DMG. It creates the public repo on first use.
 4. Only after the upload succeeds, adds the version to `appcast.xml`.
 
+If a run is interrupted after the upload, `scripts/release.sh X.Y.Z --feed-only` publishes just the feed entry for the existing release. GitHub's raw-file cache can serve a stale result for a few minutes after a feed change.
+
 It acts as `GH_ACCOUNT` through `gh auth token --user`, without switching your active gh account and without writing a token to disk.
 
 **Safety**
