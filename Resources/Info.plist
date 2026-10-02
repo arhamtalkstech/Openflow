@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Openflow</string>
+    <key>CFBundleDisplayName</key>
+    <string>Openflow</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.openflow.Openflow</string>
+    <key>CFBundleExecutable</key>
+    <string>Openflow</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.1.1</string>
+    <key>CFBundleVersion</key>
+    <string>3</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.productivity</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Openflow listens while you hold or tap your dictation shortcut and turns your speech into text.</string>
+    <!-- Over-the-air updates (Sparkle). SUFeedURL is added at build time from scripts/release.conf. -->
+    <key>SUPublicEDKey</key>
+    <string>2ShL8lKVe5OPzTbBMmlmjwHA+0EVq9nwTgDP/T1lt68=</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
+    <key>SUAllowsAutomaticUpdates</key>
+    <false/>
+    <key>NSHumanReadableCopyright</key>
+    <string>Openflow: voice dictation powered by SpaceXAI Grok models.</string>
+</dict>
+</plist>

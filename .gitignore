@@ -1,0 +1,107 @@
+# Keeps secrets, build output, caches, and local test data out of git.
+
+# Secrets
+.env
+.env.*
+!.env.example
+!.env*.example
+!.env.sample
+!.env*.sample
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+*-credentials.json
+service-account*.json
+.xai_api_key
+secrets/
+
+# Dependencies
+node_modules/
+.pnp
+.pnpm-store/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Build / cache
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+.cache/
+*.tsbuildinfo
+.vercel
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+.cursor/
+.grok/
+.claude/
+
+# Local data
+*.log
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.duckdb
+
+# Models / media / local datasets
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.gguf
+*.ckpt
+*.npy
+*.npz
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.zip
+**/chromadb/
+**/vectordb/
+
+# Swift / app build
+.build/
+.swiftpm/
+dist/
+*.app
+*.icns
+
+# Signing material (never commit): update-signing key exports, certificates, profiles
+openflow-sparkle-key*
+*sparkle*key*.txt
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+*.keychain
+*.keychain-db
+
+# Installers and crash reports
+*.dmg
+*.ips
+*.crash
+
+# Xcode user data (if the package is ever opened in Xcode)
+xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Local release settings (account names)
+scripts/release.local.conf

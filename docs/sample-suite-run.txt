@@ -1,0 +1,232 @@
+Openflow suite — 35 scenarios, pause=1.0s, cleanup=grok-4.3 effort=none
+
+▶ self-correction: Speaker changes their mind mid-sentence; only the final intent should be pasted.
+  paste 1 (1901 ms, cleanup 964 ms):
+    │ Hi Sarah,
+    │ 
+    │ I wanted to follow up on the contract. Can we meet on Friday at 4 PM?
+    │ 
+    │ Thanks,
+  ✅ pass
+
+▶ spoken-list: Enumerated items become a list.
+  paste 1 (1758 ms, cleanup 914 ms):
+    │ Here's what we need to do for the launch:
+    │ 
+    │ 1. Finish the pricing page.
+    │ 2. Update the docs.
+    │ 3. Send the announcement email to all customers.
+  ✅ pass
+
+▶ scratch-that: "Scratch that" removes the previous sentence.
+  paste 1 (1789 ms, cleanup 977 ms):
+    │ Let's ship it tomorrow morning after the QA pass.
+  ✅ pass
+
+▶ resume-before-paste: Speaker pauses long enough that cleanup has already started (speculatively), then keeps talking before the paste: the paste must be cancelled and both halves pasted together once.
+  paste 1 (1693 ms, cleanup 833 ms):
+    │ So the plan for next week is pretty simple. We focus on onboarding and nothing else.
+  ✅ pass
+
+▶ append-after-paste: Hands-free keeps listening: a long pause pastes, the next sentence is pasted after it, the first paste is untouched.
+  paste 1 (1517 ms, cleanup 699 ms):
+    │ The build is green on Main.
+  paste 2 (1601 ms, cleanup 720 ms):
+    │ Deploying to staging now, I'll ping you when it's live.
+  ✅ pass
+
+▶ question-not-answered: Dictated questions are cleaned up, not answered.
+  paste 1 (1621 ms, cleanup 837 ms):
+    │ What's the best way to reverse a linked list in Python? I need to explain it to the new intern tomorrow.
+  ✅ pass
+
+▶ push-to-talk: Hold-to-talk: a mid-sentence pause must not paste; one paste on release.
+  paste 1 (1157 ms, cleanup 793 ms):
+    │ I think we should move the offsite to October. Mostly because half the team is traveling in September.
+  ✅ pass
+
+▶ about-me-context: Free-text "about me" + dictionary steer names and product spellings.
+  paste 1 (1977 ms, cleanup 757 ms):
+    │ Tell Priya that the Openflow demo for the Atlas team is ready. And loop in Joaquín.
+  ✅ pass
+
+▶ spanish-correction: Spanish, auto-detected, with a self-correction.
+  paste 1 (2756 ms, cleanup 1814 ms):
+    │ Hola equipo, la reunión es el miércoles a las diez de la mañana.
+  ✅ pass
+
+▶ german-list: German enumeration becomes a list; no translation.
+  paste 1 (1629 ms, cleanup 837 ms):
+    │ Hallo zusammen, wir brauchen drei Dinge:
+    │ 
+    │ - die neue Preisliste
+    │ - die Dokumentation
+    │ - die E-Mail an die Kunden.
+  ✅ pass
+
+▶ hindi-correction: Hindi in Devanagari with a correction (3 o'clock → 4 o'clock).
+  paste 1 (1738 ms, cleanup 826 ms):
+    │ नमस्ते टीम, कल की मीटिंग दोपहर चार बजे है।
+  ✅ pass
+
+▶ japanese-correction: Japanese with a correction (10 → 11 o'clock).
+  paste 1 (1617 ms, cleanup 690 ms):
+    │ 明日の会議は十一時からです。
+  ✅ pass
+
+▶ hinglish-code-switch: Mixed Hindi/English stays mixed; nothing gets translated.
+  paste 1 (1374 ms, cleanup 3345 ms):
+    │ यार, कल का डेमो बहुत अच्छा गया। क्लाइंट ने बोला, they want the pilot by next Friday.
+  ✅ pass
+
+▶ custom-instructions-hinglish: Custom instruction: write Hindi in Latin script (how people actually type Hinglish).
+  paste 1 (1879 ms, cleanup 1023 ms):
+    │ Yar, kal ka demo bahut accha gaya. Client ne bola they want the pilot by next Friday.
+  ✅ pass
+
+▶ spoken-formatting-commands: "New line" / "new paragraph" are applied, not typed.
+  paste 1 (2233 ms, cleanup 1301 ms):
+    │ Grocery list.
+    │ 
+    │ Milk
+    │ Eggs
+    │ Sourdough bread
+  ✅ pass
+
+▶ selection-edit: Select text, speak an instruction: the selection is rewritten in place.
+  paste 1 (1659 ms, cleanup 853 ms):
+    │ Q3 roadmap:
+    │ - Ship the pricing page
+    │ - Update the docs
+    │ - Email the customers
+  field after:
+    ┃ Q3 roadmap:
+    ┃ - Ship the pricing page
+    ┃ - Update the docs
+    ┃ - Email the customers
+  ✅ pass
+
+▶ selection-add: Select text, dictate an addition: the selection stays, new text goes right after it.
+  paste 1 (1725 ms, cleanup 886 ms):
+    │ By the way, I also fixed the login bug this morning, so we're unblocked.
+  field after:
+    ┃ We shipped the new onboarding flow yesterday. By the way, I also fixed the login bug this morning, so we're unblocked.
+  ✅ pass
+
+▶ ai-chat-paused-list: Repro of a real dictation: a prompt to an AI chat in Chrome, items said with pauses → bullets, not answered.
+  paste 1 (2039 ms, cleanup 1566 ms):
+    │ Can you help me build a bullet list for a grocery shopping list?
+    │ 
+    │ - Eggs
+    │ - Banana
+    │ - Milk
+    │ - …
+  ✅ pass
+
+▶ paused-items-become-list: No "list" word: short items said one by one with pauses become a list.
+  paste 1 (2114 ms, cleanup 1697 ms):
+    │ Things to pack for Lisbon:
+    │ 
+    │ - Passport
+    │ - Phone charger
+    │ - Sunscreen
+  ✅ pass
+
+▶ inline-items-stay-inline: Items mentioned in passing in one flowing sentence are not turned into a list.
+  paste 1 (1103 ms, cleanup 709 ms):
+    │ I grabbed eggs, milk, and bread on the way home. So we're good for breakfast tomorrow.
+  ✅ pass
+
+▶ single-line-field-no-breaks: Paused items in a single-line search box stay on one line.
+  paste 1 (1058 ms, cleanup 699 ms):
+    │ Lights 2, Lisbon, Porto, and Madrid in May.
+  ✅ pass
+
+▶ correction-15th-to-16th: A date changed mid-sentence: only the final value survives.
+  paste 1 (1246 ms, cleanup 896 ms):
+    │ Hey, by the way, can you move the launch review to the 16th?
+  ✅ pass
+
+▶ correction-several-values: Place and time each corrected, the time twice: last values win.
+  paste 1 (1059 ms, cleanup 676 ms):
+    │ Let's meet at Blue Bottle at 5.
+  ✅ pass
+
+▶ style-email: Rambling speech into Mail reads like a written email: greeting line, paragraphs, sign-off.
+  paste 1 (1350 ms, cleanup 896 ms):
+    │ Hi Priya,
+    │ 
+    │ I wanted to give you a quick update on the pilot. The team finished the integration yesterday, and we're now testing it with real traffic. I think we'll have results by Friday.
+    │ 
+    │ Let me know if you want to join the review call.
+    │ 
+    │ Thanks,
+    │ Sam
+  ✅ pass
+
+▶ style-slack: The same speech into Slack reads like a chat message: inline greeting, no email layout.
+  paste 1 (1359 ms, cleanup 939 ms):
+    │ Hi Priya, I wanted to give you a quick update on the pilot. The team finished the integration yesterday, and we're now testing it with real traffic. I think we'll have results by Friday. Let me know if you want to join the review call. Thanks, Sam.
+  ✅ pass
+
+▶ style-ai-prompt-in-terminal: Talking to a coding agent in Terminal: a clean first-person prompt, tics removed, not answered.
+  paste 1 (2052 ms, cleanup 1664 ms):
+    │ Refactor the caret resolver so it always trusts the accessibility caret, and add tests for the terminal case.
+  ✅ pass
+
+▶ style-notes-prose: A rambling thought in Notes becomes clean written prose with nothing dropped.
+  paste 1 (1327 ms, cleanup 944 ms):
+    │ I've been thinking about the onboarding. The main problem is people don't get the API key step. They paste the wrong thing. We should probably validate it right there and show a really clear error.
+  ✅ pass
+
+▶ continue-after-full-stop: Reported bug: a second dictation after "…3 PM." must start with a space and a capital.
+  paste 1 (1071 ms, cleanup 586 ms):
+    │ Actually, beyond that, you should also try considering the latest product, which is the Voice AI product.
+  field after:
+    ┃ Hey, I think I'll meet you tomorrow at 3 PM. Actually, beyond that, you should also try considering the latest product, which is the Voice AI product.
+  ✅ pass
+
+▶ continue-mid-sentence: Previous text ends mid-sentence: continue in lowercase with one space.
+  paste 1 (965 ms, cleanup 609 ms):
+    │ and the demo laptop.
+  field after:
+    ┃ For tomorrow I'll bring the slides and the demo laptop.
+  ✅ pass
+
+▶ new-sentence-after-unpunctuated: Previous chat line has no full stop and the new dictation is a new sentence: the join gets punctuation.
+  paste 1 (2668 ms, cleanup 2251 ms):
+    │ . Also, can you bring the deck?
+  field after:
+    ┃ See you at 3. Also, can you bring the deck?
+  ✅ pass
+
+▶ no-audio-then-speech: 2.6 s of silence shows "No audio detected"; it clears as soon as the speaker talks, and the paste is normal.
+  paste 1 (1567 ms, cleanup 1156 ms):
+    │ Please confirm the booking for Friday.
+  ✅ pass
+
+▶ offline-recovers-from-audio: Streaming connection unreachable: keeps recording, then transcribes the kept audio at stop and pastes it.
+  paste 1 (1301 ms, cleanup 763 ms):
+    │ The quarterly numbers look strong. Let's share them with the board on Monday.
+  ✅ pass
+
+▶ offline-retry-later: Fully offline: the bubble offers Retry with the audio kept in memory; Retry (network back) pastes it.
+  paste 1 (0 ms, cleanup 0 ms):
+    │ Remind me to renew the domain before it expires next week.
+  ✅ pass
+
+▶ paste-did-not-land: The app ignored the paste: no fake success; the bubble offers Paste, which lands the text.
+  paste 1 (1158 ms, cleanup 776 ms):
+    │ Ship it after lunch.
+  ✅ pass
+
+▶ numbers-and-email: Numbers, money, and spoken email addresses in written form.
+  paste 1 (2256 ms, cleanup 1418 ms):
+    │ The invoice is $2,450. Please send it to billing@acme.com by the 15th.
+  ✅ pass
+
+──────── summary ────────
+passed 35/35
+speech end → paste: p50 1621 ms, p90 2233 ms, max 2756 ms  (includes the 1000 ms pause)
+grok-4.3 cleanup:   p50 886 ms, p90 1697 ms
+spend: cleanup $0.05441 + STT $0.01686 (303s audio @ $0.20/h)
