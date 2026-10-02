@@ -3,6 +3,15 @@
   <channel>
     <title>Openflow</title>
     <item>
+      <title>Openflow 1.1.3</title>
+      <pubDate>Fri, 02 Oct 2026 23:05:50 GMT</pubDate>
+      <sparkle:version>6</sparkle:version>
+      <sparkle:shortVersionString>1.1.3</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<ul><li>Hold to talk is now the default for new installs: hold the shortcut while you speak, let go to paste. Hands-free is still available under Shortcut.</li><li>The setup assistant and Home describe the shortcut the way it&#x27;s actually set.</li><li>Install with one Terminal command (see the README); it verifies the download and opens without security prompts.</li></ul>]]></description>
+      <enclosure url="https://github.com/arhamtalkstech/Openflow/releases/download/v1.1.3/Openflow-1.1.3.zip" sparkle:edSignature="gBm7M1LdgDgVYXWH8v/StYLvuoy6kmgqFh1QB8x8iWI5fqPvOkFZJrMMi6c3d8x9gkVPHZdZjt0bsNcEvKE9Bw==" length="3448459" type="application/octet-stream"/>
+    </item>
+    <item>
       <title>Openflow 1.1.2</title>
       <pubDate>Fri, 02 Oct 2026 22:18:10 GMT</pubDate>
       <sparkle:version>5</sparkle:version>
