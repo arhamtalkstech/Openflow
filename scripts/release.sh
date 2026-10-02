@@ -3,6 +3,7 @@
 #
 #   scripts/release.sh 1.1.2 --notes notes.md          # GitHub: release assets + appcast.xml in RELEASES_REPO
 #   scripts/release.sh 1.1.2 --local DIR --base-url URL # local test feed (nothing is published)
+#   scripts/release.sh 1.1.2 --feed-only                 # resume: publish the feed for an already uploaded release
 #
 # Steps: bump version → universal build + DMG → zip → EdDSA-sign the zip with the Sparkle key in your
 # Keychain → upload the zip/DMG → add the version to appcast.xml (only after the upload succeeded).
@@ -13,12 +14,13 @@ cd "$(dirname "$0")/.."
 
 VERSION="${1:-}"; shift || true
 [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "usage: scripts/release.sh X.Y.Z [--notes FILE] [--local DIR --base-url URL]" >&2; exit 2; }
-NOTES=""; LOCAL_DIR=""; BASE_URL=""
+NOTES=""; LOCAL_DIR=""; BASE_URL=""; FEED_ONLY=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --notes) NOTES="$2"; shift 2 ;;
     --local) LOCAL_DIR="$2"; shift 2 ;;
     --base-url) BASE_URL="${2%/}"; shift 2 ;;
+    --feed-only) FEED_ONLY=1; shift ;;
     *) echo "unknown option $1" >&2; exit 2 ;;
   esac
 done
@@ -43,18 +45,29 @@ else
   export GH_TOKEN
   DOWNLOAD_URL="https://github.com/$RELEASES_REPO/releases/download/v$VERSION/Openflow-$VERSION.zip"
   BRANCH="${APPCAST_BRANCH:-updates}"
-  FEED_BUILD=$(gh api "repos/$RELEASES_REPO/contents/appcast.xml?ref=$BRANCH" --jq .content 2>/dev/null | base64 --decode 2>/dev/null | max_feed_build || true)
-  BUILD=$(( (REPO_BUILD > ${FEED_BUILD:-0} ? REPO_BUILD : ${FEED_BUILD:-0}) + 1 ))
+  # gh prints the error body on 404, so existence is decided by the exit status.
+  FEED_JSON=$(gh api "repos/$RELEASES_REPO/contents/appcast.xml?ref=$BRANCH" 2>/dev/null) || FEED_JSON=""
+  FEED_BUILD=""
+  [[ -n "$FEED_JSON" ]] && FEED_BUILD=$(printf '%s' "$FEED_JSON" | python3 -c 'import sys,json,base64; print(base64.b64decode(json.load(sys.stdin)["content"]).decode())' | max_feed_build || true)
+  if [[ $FEED_ONLY == 1 ]]; then
+    BUILD=$REPO_BUILD   # resume: the version and build were already set by the interrupted run
+  else
+    BUILD=$(( (REPO_BUILD > ${FEED_BUILD:-0} ? REPO_BUILD : ${FEED_BUILD:-0}) + 1 ))
+  fi
   # The repo version is the source of truth for releases.
-  /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" -c "Set :CFBundleVersion $BUILD" Resources/Info.plist
+  [[ $FEED_ONLY == 1 ]] || /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" -c "Set :CFBundleVersion $BUILD" Resources/Info.plist
 fi
 echo "Releasing Openflow $VERSION (build $BUILD; previous $CURRENT)"
 
-OPENFLOW_VERSION="$VERSION" OPENFLOW_BUILD="$BUILD" scripts/make-dmg.sh
 ZIP="dist/Openflow-$VERSION.zip"
 DMG="dist/Openflow-$VERSION.dmg"
-rm -f "$ZIP"
-ditto -c -k --sequesterRsrc --keepParent .build/app/Openflow.app "$ZIP"
+if [[ $FEED_ONLY == 1 ]]; then
+  [[ -f "$ZIP" ]] || { echo "--feed-only needs $ZIP from the original run" >&2; exit 1; }
+else
+  OPENFLOW_VERSION="$VERSION" OPENFLOW_BUILD="$BUILD" scripts/make-dmg.sh
+  rm -f "$ZIP"
+  ditto -c -k --sequesterRsrc --keepParent .build/app/Openflow.app "$ZIP"
+fi
 SIG_ATTRS=$("$SIGN_UPDATE" "$ZIP")   # sparkle:edSignature="…" length="…"
 echo "Signed: $SIG_ATTRS"
 
@@ -115,13 +128,18 @@ if ! gh api "repos/$RELEASES_REPO/branches/$BRANCH" >/dev/null 2>&1; then
 fi
 NOTES_FILE=$(mktemp); trap 'rm -f "$NOTES_FILE"' EXIT
 [[ -n "$NOTES" ]] && cp "$NOTES" "$NOTES_FILE" || echo "Improvements and fixes." > "$NOTES_FILE"
-gh release create "v$VERSION" "$ZIP" "$DMG" --repo "$RELEASES_REPO" --title "Openflow $VERSION" --notes-file "$NOTES_FILE"
+if [[ $FEED_ONLY == 1 ]]; then
+  gh release view "v$VERSION" --repo "$RELEASES_REPO" >/dev/null || { echo "Release v$VERSION not found" >&2; exit 1; }
+else
+  gh release create "v$VERSION" "$ZIP" "$DMG" --repo "$RELEASES_REPO" --title "Openflow $VERSION" --notes-file "$NOTES_FILE"
+fi
 
 # Then publish the feed entry (GitHub contents API; no local clone, no token on disk).
 TMP_OLD=$(mktemp); TMP_NEW=$(mktemp)
-SHA=$(gh api "repos/$RELEASES_REPO/contents/appcast.xml?ref=$BRANCH" --jq .sha 2>/dev/null || true)
-if [[ -n "$SHA" ]]; then
-  gh api "repos/$RELEASES_REPO/contents/appcast.xml?ref=$BRANCH" --jq .content | base64 --decode > "$TMP_OLD"
+SHA=""
+if [[ -n "$FEED_JSON" ]]; then
+  SHA=$(printf '%s' "$FEED_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)["sha"])')
+  printf '%s' "$FEED_JSON" | python3 -c 'import sys,json,base64; sys.stdout.write(base64.b64decode(json.load(sys.stdin)["content"]).decode())' > "$TMP_OLD"
   make_appcast "$TMP_OLD" > "$TMP_NEW"
 else
   make_appcast "" > "$TMP_NEW"
